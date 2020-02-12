@@ -12,7 +12,7 @@ public abstract class Node<K extends Comparable<K>, T> {
 		this.degree = degree;
 		keys = new ArrayList<K>();
 	}
-	
+
 	public boolean isOverflowed() {
 		return keys.size() > 2 * degree;
 	}
@@ -31,6 +31,14 @@ public abstract class Node<K extends Comparable<K>, T> {
 	
 	public K removeKey(int i) {
 		return this.keys.remove(i);
+	}
+
+	public boolean hasKey(K key) {
+		return this.keys.contains(key);
+	}
+
+	public int getKeyIndex(K key) {
+		return this.keys.indexOf(key);
 	}
 	
 	public void addKey(int i, K key) {

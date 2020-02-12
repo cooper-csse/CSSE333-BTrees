@@ -54,13 +54,13 @@ public class LeafNode<K extends Comparable<K>, T> extends Node<K, T> {
 	}
 
 	public T findValue(K key) {
-		if (!this.keys.contains(key)) return null;
+		if (!this.hasKey(key)) return null;
 		return this.values.get(this.findValueIndex(key));
 	}
 	
 	public int findValueIndex(K key) {
-		if (!this.keys.contains(key)) return -1;
-		return this.keys.indexOf(key);
+		if (!this.hasKey(key)) return -1;
+		return this.getKeyIndex(key);
 	}
 
 	public int getNumValues() {

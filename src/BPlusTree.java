@@ -1,4 +1,5 @@
 import java.util.AbstractMap;
+import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +40,11 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 * @return value - The value of the item found. If key not found, null.
 	 */
 	public T exactMatchSearch(K key) {
-		// TODO: Implement me second!
-		return null;
+		if (key == null) return null;
+		Node<K, T> node = this.findLeafNode(this.getRoot(), key);
+		LeafNode<K, T> leaf = (LeafNode<K, T>) node;
+		if (leaf == null) return null;
+		return leaf.findValue(key);
 	}
 
 	/**
@@ -60,9 +64,33 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 * @return
 	 */
 	private Node<K, T> findLeafNode(Node<K, T> startingNode, K key) {
-		//TODO: Implement me first!
-		return null;
+		Node<K, T> node = startingNode;
+		while (node != null && !node.isLeafNode) {
+			IndexNode<K, T> indexNode = (IndexNode<K, T>) node;
+			int i = binarySearch(node, key, 0, node.getNumKeys());
+			node = indexNode.getChild(i);
+		}
+		return node;
 	}
+
+	private int binarySearch(Node<K, T> node, K key, int left, int right) {
+		if (node.getNumKeys() == 1) {
+			if (node.getKey(0).compareTo(key) > 0) return 0;
+			return 1;
+		}
+		for (int i = 0; i < node.getNumKeys(); i++) {
+			if (i == right - 1) {
+				if (node.getKey(i).compareTo(key) > 0) return i;
+				return i + 1;
+			}
+			int l = node.getKey(i).compareTo(key), r = node.getKey(i + 1).compareTo(key);
+			if (l > 0 && r > 0) return i;
+			if (l == 0 || l > 0 && r < 0) return i + 1;
+		}
+		return -1;
+	}
+
+
 
 	/**
 	 * Performs a greater than or equal to range search on the B+ tree.
@@ -77,8 +105,19 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 * @return The values of the items that had a key >= to what was given.
 	 */
 	public List<T> greaterThanEqualToKeySearch(K key) {
-		//TODO: Implement me after exactMatch is working!
-		return null;
+		ArrayList<T> values = new ArrayList<>();
+		LeafNode<K, T> node = (LeafNode<K, T>) this.findLeafNode(this.getRoot(), key);
+		for (ListIterator<K> iterator = node.getKeyIterator(); iterator.hasNext();) {
+			K k = iterator.next();
+			if (k.compareTo(key) >= 0) values.add(node.findValue(k));
+		}
+		while (node.getNextLeaf() != null) {
+			node = node.getNextLeaf();
+			for (ListIterator<T> iterator = node.getValueIterator(); iterator.hasNext();) {
+				values.add(iterator.next());
+			}
+		}
+		return values;
 	}
 
 	/**
@@ -94,8 +133,19 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 * @return The values of the items that had a key <= to what was given.
 	 */
 	public List<T> lessThanEqualToKeySearch(K key) {
-		//TODO: Implement me after exactMatch is working (order with greater than doesn't matter)!
-		return null;
+		ArrayList<T> values = new ArrayList<>();
+		LeafNode<K, T> node = (LeafNode<K, T>) this.findLeafNode(this.getRoot(), key);
+		for (ListIterator<K> iterator = node.getKeyIterator(); iterator.hasNext();) {
+			K k = iterator.next();
+			if (k.compareTo(key) <= 0) values.add(node.findValue(k));
+		}
+		while (node.getPreviousLeaf() != null) {
+			node = node.getPreviousLeaf();
+			for (ListIterator<T> iterator = node.getValueIterator(); iterator.hasNext();) {
+				values.add(iterator.next());
+			}
+		}
+		return values;
 	}
 
 	/**

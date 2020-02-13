@@ -67,19 +67,19 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		Node<K, T> node = startingNode;
 		while (node != null && !node.isLeafNode) {
 			IndexNode<K, T> indexNode = (IndexNode<K, T>) node;
-			int i = binarySearch(node, key, 0, node.getNumKeys());
+			int i = search(node, key);
 			node = indexNode.getChild(i);
 		}
 		return node;
 	}
 
-	private int binarySearch(Node<K, T> node, K key, int left, int right) {
+	private int search(Node<K, T> node, K key) {
 		if (node.getNumKeys() == 1) {
 			if (node.getKey(0).compareTo(key) > 0) return 0;
 			return 1;
 		}
 		for (int i = 0; i < node.getNumKeys(); i++) {
-			if (i == right - 1) {
+			if (i == node.getNumKeys() - 1) {
 				if (node.getKey(i).compareTo(key) > 0) return i;
 				return i + 1;
 			}
